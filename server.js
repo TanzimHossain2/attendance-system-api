@@ -3,9 +3,11 @@ const express = require('express');
 const connectDb = require('./db');
 const User = require('./models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const connectionString = process.env.MONGO_URL;
 const PORT = process.env.PORT || 4000;
+const JWT_SECRET = process.env.SECRET_KEY;
 
 const app = express();
 
@@ -56,25 +58,25 @@ password = input()
 user = find user with email
 
 if user not found:
-	return 400 error
+    return 400 error
 
 if password not equal to user.hash
-	retun 400 error
+    retun 400 error
 
 token = generate token using user
-	retun token
+    retun token
 
 end
 */
 
-app.post('/login', async (req, res, next) =>{
-    const {email, password} = req.body;
+app.post('/login', async (req, res, next) => {
+    const { email, password } = req.body;
 
-    try{
-        const user = await User.findOne({ email: email }).select('-_id -accountStatus -__v -roles');
+    try {
+        const user = await User.findOne({ email: email }).select(' -accountStatus -__v -roles');
 
-      
-        if(!user){
+
+        if (!user) {
             return res.status(400).json({
                 error: 'User not found'
             })
@@ -82,7 +84,7 @@ app.post('/login', async (req, res, next) =>{
 
         const isMatch = await bcrypt.compare(password, user.password);
 
-        if(!isMatch){
+        if (!isMatch) {
             return res.status(400).json({
                 error: 'Invalid Credentials'
             })
@@ -90,15 +92,70 @@ app.post('/login', async (req, res, next) =>{
 
         delete user._doc.password;
 
+        const token = jwt.sign(user._doc, JWT_SECRET, {
+            expiresIn: '12h'
+        });
+
+
         return res.status(200).json({
             message: 'Login Successful',
-            user: user
-        })
+            token
+        });
 
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })
+
+
+app.get('/private', async (req, res) => {
+    let token = req.headers.authorization;
+
+    if (!token) {
+        return res.status(401).json({
+            error: 'Unauthorized'
+        })
+    }
+
+    try {
+        token = token.split(' ')[1];
+
+        const decoded = await jwt.verify(token, JWT_SECRET);
+        console.log(decoded);
+        const user = await User.findById(decoded._id)
+
+        if (!user) {
+            return res.status(401).json({
+                error: 'Unauthorized'
+            })
+        }
+
+        return res.status(200).json({
+            message: 'Private Route'
+        })
+
+    } catch (e) {
+        return res.status(400).json({
+            error: 'Invalid Token'
+        })
+    }
+
+})
+
+app.get('/public', (req, res) => {
+
+
+    return res.status(200).json({
+        message: 'Public Route'
+    })
+})
+
+
+app.get('/health', (_, res) => {
+    res.json({
+        message: 'Server is running'
+    });
+});
 
 app.get('/', (_, res) => {
     res.json(data);
