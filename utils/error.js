@@ -1,4 +1,4 @@
-function error( status=500,msg='Something Went Wrong') {
+function error(status = 500, msg = 'Something Went Wrong') {
     const err = new Error(msg);
     err.status = status;
     return err;

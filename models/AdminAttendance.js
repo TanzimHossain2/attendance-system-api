@@ -1,8 +1,8 @@
-const {Schema, model} = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const adminAttendanceSchema = new Schema({
-    timeLimit:Number,
-    
+    timeLimit: Number,
+
     status: {
         type: String,
         required: true,

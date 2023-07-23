@@ -15,7 +15,7 @@ app.use(routes)
 const authentication = require('./middleware/authentication');
 
 app.get('/private', authentication, (_req, res) => {
-    return res.status(200).json({message: 'Private Route'});
+    return res.status(200).json({ message: 'Private Route' });
 })
 
 
@@ -31,8 +31,8 @@ app.use((err, _req, res, next) => {
 
 // Connect to DB
 connectDb(connectionString)
-    .then(() => { console.log('connected to db')})
-    .catch((err) => {console.log(err)});
+    .then(() => { console.log('connected to db') })
+    .catch((err) => { console.log(err) });
 
 // Start Server
 app.listen(PORT, () => {

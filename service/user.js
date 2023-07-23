@@ -1,23 +1,39 @@
 const User = require('../models/User');
+const error = require('../utils/error');
 
-const findUserByProperty = (key, value) =>{
+const findUserByProperty = (key, value) => {
     if (key === '_id') {
         return User.findById(value);
     }
     return User.findOne({ [key]: value });
 }
 
-const createNewUser = ({name, email, password}) => {
-    const user = new User({
-        name,
-        email,
-        password,
-    });
+const createNewUser = ({ name, email, password, roles, accountStatus }) => {
+    const user = new User({ name, email, password, roles: roles ? roles : ['Student'], accountStatus: accountStatus ? accountStatus : 'PENDING' });
 
     return user.save();
 }
 
+const findUsers = () => {
+    return User.find();
+}
+
+const updateUser = async (id, data) => {
+    const { email } = data;
+
+    const user = await findUserByProperty('email', email);
+
+    if (user) {
+        throw error('User already exists', 400);
+    }
+
+    return User.findByIdAndUpdate(id, { ...data }, { new: true });
+}
+
+
 module.exports = {
     findUserByProperty,
-    createNewUser
+    createNewUser,
+    findUsers,
+    updateUser
 }

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {model, Schema} = mongoose;
+const { model, Schema } = mongoose;
 
 const profileSchema = new Schema({
     firstName: {
@@ -7,8 +7,8 @@ const profileSchema = new Schema({
         required: true,
     },
     lastName: {
-        
-        type:String,
+
+        type: String,
         required: true,
     },
     phoneNo: {
