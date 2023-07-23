@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const morgan = require('morgan');
 const connectDb = require('./db');
 const connectionString = process.env.MONGO_URL;
 const PORT = process.env.PORT || 4000;
@@ -9,6 +10,7 @@ app.use(express.json());
 const routes = require('./routes/index');
 app.use(routes)
 
+app.use(morgan('dev'));
 
 
 
